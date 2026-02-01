@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Reservas Pro</title>
+    <!-- Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --primary: #2D5A4A;
+            --primary-light: #4A7C59;
+            --primary-dark: #1D3A2A;
+            --accent: #D4A574;
+            --accent-light: #F3E5D8;
+            --text-main: #1A1A1A;
+            --text-muted: #64748b;
+            --bg-main: #F8FAFC;
+            --white: #FFFFFF;
+            --border: #E2E8F0;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-main);
+            color: var(--text-main);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3, .business-name {
+            font-family: 'Crimson Pro', serif;
+        }
+
+        /* Layout */
+        .header {
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .logo-box {
+            width: 42px;
+            height: 42px;
+            background: var(--primary);
+            color: white;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .business-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 0.625rem 1.25rem;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+            font-family: inherit;
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+        
+        .btn-secondary { background: white; border-color: var(--border); color: var(--text-main); }
+        .btn-secondary:hover { background: var(--bg-main); border-color: var(--primary); color: var(--primary); }
+
+        .btn-danger { background: #fee2e2; color: var(--danger); }
+        .btn-danger:hover { background: var(--danger); color: white; }
+
+        .btn-ghost { background: transparent; color: var(--text-muted); }
+        .btn-ghost:hover { background: var(--bg-main); color: var(--text-main); }
+
+        /* Admin Panel */
+        .card {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .card-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f1f5f9;
+            padding: 4px;
+            border-radius: var(--radius-sm);
+            gap: 4px;
+            margin: 1.5rem;
+            overflow-x: auto;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 0.5rem 1rem;
+            border: none;
+            background: transparent;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            border-radius: 6px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .tab.active {
+            background: var(--white);
+            color: var(--primary);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .tab-content { padding: 1.5rem; display: none; }
+        .tab-content.active { display: block; animation: slideUp 0.3s ease-out; }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Forms */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .field { margin-bottom: 1.25rem; }
+        .field label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        /* Service Cards */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .service-item {
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+            background: var(--white);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        /* Calendar */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            margin-top: 1rem;
+        }
+
+        .cal-day-header {
+            text-align: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            padding: 0.5rem;
+        }
+
+        .cal-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+
+        .cal-day.selected { background: var(--primary); color: white; border-color: var(--primary); }
+        .cal-day.disabled { background: #f8fafc; color: #cbd5e1; cursor: not-allowed; }
+        .cal-day.empty { border: none; cursor: default; }
+
+        /* Time Slots */
+        .slots-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            gap: 8px;
+            margin-top: 1.5rem;
+        }
+
+        .slot-pill {
+            padding: 0.5rem;
+            text-align: center;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .slot-pill.selected { background: var(--primary); color: white; border-color: var(--primary); }
+        .slot-pill.booked { background: #f1f5f9; color: #94a3b8; cursor: not-allowed; text-decoration: line-through; }
+
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-box {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .stat-label { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+        .stat-value { font-size: 1.75rem; font-weight: 700; color: var(--primary); }
+
+        /* Reservation List */
+        .res-list { display: flex; flex-direction: column; gap: 0.75rem; }
+        .res-card {
+            background: white;
+            padding: 1rem;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .res-info h4 { font-size: 1rem; color: var(--text-main); }
+
+        .status-pill {
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-confirmed { background: #dcfce7; color: #166534; }
+        .status-cancelled { background: #fee2e2; color: #991b1b; }
+
+        /* Modals */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 1.5rem;
+        }
+
+        .modal-card {
+            background: white;
+            width: 100%;
+            max-width: 440px;
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Notifications */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            background: var(--white);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            border-left: 4px solid var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 3000;
+            animation: slideInRight 0.3s forwards;
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .hidden { display: none !important; }
+
+        @media (max-width: 768px) {
+            .header-content { flex-direction: column; gap: 1rem; }
+            .tabs { flex-wrap: nowrap; overflow-x: auto; }
+            .form-grid { grid-template-columns: 1fr; }
+            .res-card { flex-direction: column; gap: 1rem; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo-section">
+                <div class="logo-box" id="businessLogo">📅</div>
+                <h1 class="business-name" id="businessName">Mi Negocio</h1>
+            </div>
+            <div class="header-actions" style="display: flex; gap: 10px;">
+                <button class="btn btn-secondary" id="adminToggle">
+                    <i data-lucide="settings"></i> <span>Panel Admin</span>
+                </button>
+                <button class="btn btn-primary" id="newBookingBtn">
+                    <i data-lucide="plus"></i> <span>Nueva Reserva</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        <!-- Admin Dashboard -->
+        <div id="adminPanel" class="hidden">
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <span class="stat-label">Total Reservas</span>
+                    <span class="stat-value" id="statTotal">0</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">Pendientes</span>
+                    <span class="stat-value" id="statPending">0</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">Hoy</span>
+                    <span class="stat-value" id="statToday">0</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">Ingresos Est.</span>
+                    <span class="stat-value" id="statIncome">€0</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('config')"><i data-lucide="sliders"></i> General</button>
+                    <button class="tab" onclick="switchTab('services')"><i data-lucide="briefcase"></i> Servicios</button>
+                    <button class="tab" onclick="switchTab('schedule')"><i data-lucide="clock"></i> Horarios</button>
+                    <button class="tab" onclick="switchTab('reservations')"><i data-lucide="list"></i> Reservas</button>
+                    <button class="tab" onclick="switchTab('share')"><i data-lucide="share-2"></i> Compartir</button>
+                    <button class="tab" onclick="switchTab('data')"><i data-lucide="database"></i> Datos</button>
+                </div>
+
+                <!-- Config Tab -->
+                <div class="tab-content active" id="config">
+                    <div class="form-grid">
+                        <div class="field">
+                            <label>Nombre del Negocio</label>
+                            <input type="text" id="configBusinessName" placeholder="Ej: Barbería Barber">
+                        </div>
+                        <div class="field">
+                            <label>WhatsApp (con prefijo)</label>
+                            <input type="tel" id="configWhatsapp" placeholder="Ej: 34600000000">
+                        </div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="field">
+                            <label>Emoji/Icono</label>
+                            <input type="text" id="configEmoji" maxlength="2">
+                        </div>
+                        <div class="field">
+                            <label>Color Marca</label>
+                            <input type="color" id="configColor">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>Descripción</label>
+                        <textarea id="configDescription" rows="2"></textarea>
+                    </div>
+                    <div class="form-grid">
+                        <div class="field">
+                            <label>Descanso entre citas (min)</label>
+                            <input type="number" id="configBuffer" value="15" min="0">
+                        </div>
+                        <div class="field">
+                            <label>Acción</label>
+                            <button class="btn btn-primary" onclick="saveConfig()" style="width:100%">Actualizar Configuración</button>
+                        </div>
+                    </div>
+
+                    <hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--border);">
+                    <h3>Seguridad</h3>
+                    <div class="form-grid">
+                        <div class="field">
+                            <label>Nueva Contraseña Admin</label>
+                            <input type="password" id="newPasswordAdmin" placeholder="Mín. 6 caracteres">
+                        </div>
+                        <div class="field">
+                            <label>Confirmar Contraseña</label>
+                            <input type="password" id="confirmPasswordAdmin">
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary" onclick="changePassword()">Actualizar Clave</button>
+                </div>
+
+                <!-- Services Tab -->
+                <div class="tab-content" id="services">
+                    <div style="padding: 1.5rem; background: #f8fafc; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 1.5rem;">
+                        <input type="hidden" id="editingServiceId">
+                        <div class="form-grid">
+                            <div class="field"><label>Nombre</label><input type="text" id="serviceName"></div>
+                            <div class="field"><label>Precio (€)</label><input type="number" id="servicePrice"></div>
+                            <div class="field"><label>Duración (min)</label><input type="number" id="serviceDuration"></div>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn btn-primary" id="addServiceBtn" onclick="addService()">Guardar Servicio</button>
+                            <button class="btn btn-secondary hidden" id="cancelEditBtn" onclick="resetServiceForm()">Cancelar</button>
+                        </div>
+                    </div>
+                    <div class="services-grid" id="servicesList"></div>
+                </div>
+
+                <!-- Schedule Tab -->
+                <div class="tab-content" id="schedule">
+                    <div id="scheduleList" style="display: flex; flex-direction: column; gap: 0.5rem;"></div>
+                </div>
+
+                <!-- Reservations Tab -->
+                <div class="tab-content" id="reservations">
+                    <div class="res-list" id="reservationsList"></div>
+                </div>
+
+                <!-- Share Tab -->
+                <div class="tab-content" id="share">
+                    <div style="text-align: center; max-width: 400px; margin: 0 auto;">
+                        <h3 style="margin-bottom: 1rem;">Compartir con Clientes</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">Genera un enlace directo para que tus clientes reserven citas sin acceder al panel de administración.</p>
+                        
+                        <div style="display: flex; gap: 4px; margin-bottom: 1.5rem;">
+                            <input type="text" id="shareLink" readonly style="flex: 1; font-size: 0.8rem;" placeholder="Pulsa el botón para generar el enlace">
+                            <button class="btn btn-primary btn-sm" onclick="copyLink()">Copiar</button>
+                        </div>
+
+                        <div id="qrcode" style="display: inline-block; padding: 10px; background: white; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 1.5rem;" class="hidden"></div>
+                        
+                        <div style="margin-top: 1rem;">
+                            <button class="btn btn-secondary" onclick="generateShareLink()" style="width: 100%;">Generar enlace para el cliente</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Tab -->
+                <div class="tab-content" id="data">
+                    <div class="form-grid">
+                        <div class="field">
+                            <label>Exportar Respaldo</label>
+                            <button class="btn btn-primary" onclick="exportData()" style="width: 100%"><i data-lucide="download"></i> Descargar JSON</button>
+                        </div>
+                        <div class="field">
+                            <label>Importar Respaldo</label>
+                            <input type="file" id="importFile" accept=".json">
+                            <button class="btn btn-secondary" onclick="importData()" style="width: 100%; margin-top: 5px;">Cargar Datos</button>
+                        </div>
+                    </div>
+                    <hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--border);">
+                    <button class="btn btn-danger" onclick="resetData()">🗑️ Resetear Todo el Sistema</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Booking Flow (Customer View) -->
+        <div id="bookingSection" class="card" style="max-width: 800px; margin-left: auto; margin-right: auto;">
+            <div class="card-header">
+                <h2 id="bookingStepTitle">Selecciona el Servicio</h2>
+                <span id="stepIndicator" style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">Paso 1 de 4</span>
+            </div>
+            
+            <div class="tab-content active" id="bookingSteps">
+                <div id="step1">
+                    <div class="services-grid" id="bookingServiceSelector"></div>
+                </div>
+                <div id="step2" class="hidden">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <button class="btn btn-ghost" onclick="changeMonth(-1)"><i data-lucide="chevron-left"></i></button>
+                        <h4 id="calMonthLabel" style="font-family: 'Crimson Pro', serif; font-size: 1.2rem;"></h4>
+                        <button class="btn btn-ghost" onclick="changeMonth(1)"><i data-lucide="chevron-right"></i></button>
+                    </div>
+                    <div class="calendar-grid" id="calendarGrid"></div>
+                    <div id="slotsContainer" class="hidden">
+                        <hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--border);">
+                        <h4 style="margin-bottom: 1rem; font-size: 0.9rem;">Horarios Disponibles</h4>
+                        <div class="slots-grid" id="timeSlots"></div>
+                    </div>
+                </div>
+                <div id="step3" class="hidden">
+                    <div class="form-grid">
+                        <div class="field"><label>Nombre Completo</label><input type="text" id="custName"></div>
+                        <div class="field"><label>WhatsApp / Teléfono</label><input type="tel" id="custPhone"></div>
+                    </div>
+                    <div class="field"><label>Notas adicionales (opcional)</label><textarea id="custNotes" rows="2"></textarea></div>
+                    <button class="btn btn-primary" onclick="goToSummary()" style="width: 100%;">Revisar Reserva</button>
+                </div>
+                <div id="step4" class="hidden">
+                    <div style="background: var(--bg-main); padding: 1.5rem; border-radius: var(--radius-md); border: 1px solid var(--border); margin-bottom: 1.5rem;">
+                        <h3 style="margin-bottom: 1rem; color: var(--primary);">Resumen de tu cita</h3>
+                        <p id="summaryText" style="line-height: 2;"></p>
+                    </div>
+                    <button class="btn btn-primary" onclick="confirmBooking()" style="width: 100%;">Confirmar y Finalizar</button>
+                </div>
+                <div style="margin-top: 1.5rem; display: flex; justify-content: space-between;">
+                    <button class="btn btn-secondary hidden" id="prevBtn" onclick="navigateBooking(-1)">Anterior</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal (SEGURIDAD ORIGINAL) -->
+    <div id="loginModal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <h2 style="text-align: center; margin-bottom: 1.5rem;"><i data-lucide="lock" style="vertical-align: middle;"></i> Acceso Admin</h2>
+            <div id="loginForm">
+                <div class="field">
+                    <label>Contraseña</label>
+                    <input type="password" id="loginPassword" placeholder="Ingresa tu clave">
+                </div>
+                <button class="btn btn-primary" onclick="attemptLogin()" style="width: 100%;">Entrar</button>
+                <div id="loginError" class="hidden" style="color: var(--danger); font-size: 0.8rem; margin-top: 10px; text-align: center;">Contraseña incorrecta</div>
+                <p style="text-align: center; margin-top: 1.5rem; font-size: 0.8rem;">
+                    <a href="?mode=customer" style="color: var(--primary); text-decoration: none;">← Volver a reservas</a>
+                </p>
+            </div>
+            <div id="setupForm" class="hidden">
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem; text-align: center;">Es tu primera vez. Crea una contraseña para proteger el panel.</p>
+                <div class="field"><label>Crear Contraseña</label><input type="password" id="setupPassword1"></div>
+                <div class="field"><label>Confirmar Contraseña</label><input type="password" id="setupPassword2"></div>
+                <button class="btn btn-primary" onclick="setupPassword()" style="width: 100%;">Crear Contraseña</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+        // Data Store
+        let bookingData = {
+            config: { businessName: 'Mi Negocio', whatsapp: '', emoji: '📅', color: '#2D5A4A', description: '', buffer: 15 },
+            auth: { passwordHash: null, isAuthenticated: false },
+            services: [],
+            schedule: {
+                lunes: { enabled: true, start: '09:00', end: '18:00' },
+                martes: { enabled: true, start: '09:00', end: '18:00' },
+                miercoles: { enabled: true, start: '09:00', end: '18:00' },
+                jueves: { enabled: true, start: '09:00', end: '18:00' },
+                viernes: { enabled: true, start: '09:00', end: '18:00' },
+                sabado: { enabled: false, start: '10:00', end: '14:00' },
+                domingo: { enabled: false, start: '10:00', end: '14:00' }
+            },
+            reservations: []
+        };
+
+        let currentStep = 1;
+        let bookingSelection = { service: null, date: null, time: null };
+        let calDate = new Date();
+
+        // --- SISTEMA DE SEGURIDAD (MANTENIDO) ---
+        function checkAdminAccess() {
+            if (!bookingData.auth) { bookingData.auth = { passwordHash: null, isAuthenticated: false }; }
+            if (!bookingData.auth.passwordHash) { showLoginModal(true); return; }
+            const sessionAuth = sessionStorage.getItem('adminAuthenticated');
+            if (sessionAuth === 'true') { bookingData.auth.isAuthenticated = true; return; }
+            showLoginModal(false);
+            document.getElementById('adminPanel').style.display = 'none';
+        }
+
+        function showLoginModal(isSetup) {
+            const modal = document.getElementById('loginModal');
+            const loginForm = document.getElementById('loginForm');
+            const setupForm = document.getElementById('setupForm');
+            modal.classList.remove('hidden');
+            if (isSetup) { loginForm.classList.add('hidden'); setupForm.classList.remove('hidden'); } 
+            else { loginForm.classList.remove('hidden'); setupForm.classList.add('hidden'); }
+        }
+
+        function hideLoginModal() {
+            document.getElementById('loginModal').classList.add('hidden');
+            document.getElementById('loginError').classList.add('hidden');
+        }
+
+        async function hashPassword(password) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        async function setupPassword() {
+            const pass1 = document.getElementById('setupPassword1').value;
+            const pass2 = document.getElementById('setupPassword2').value;
+            if (pass1.length < 6) { return toast("Mínimo 6 caracteres", "danger"); }
+            if (pass1 !== pass2) { return toast("No coinciden", "danger"); }
+            const hash = await hashPassword(pass1);
+            bookingData.auth.passwordHash = hash;
+            bookingData.auth.isAuthenticated = true;
+            saveData();
+            sessionStorage.setItem('adminAuthenticated', 'true');
+            hideLoginModal();
+            document.getElementById('adminPanel').style.display = 'block';
+            toast("Contraseña configurada");
+        }
+
+        async function attemptLogin() {
+            const password = document.getElementById('loginPassword').value;
+            if (!password) return;
+            const hash = await hashPassword(password);
+            if (hash === bookingData.auth.passwordHash) {
+                bookingData.auth.isAuthenticated = true;
+                sessionStorage.setItem('adminAuthenticated', 'true');
+                hideLoginModal();
+                document.getElementById('adminPanel').style.display = 'block';
+                toast("Acceso concedido");
+            } else {
+                document.getElementById('loginError').classList.remove('hidden');
+            }
+        }
+
+        async function changePassword() {
+            const newPass = document.getElementById('newPasswordAdmin').value;
+            const confirmPass = document.getElementById('confirmPasswordAdmin').value;
+            if (!newPass || newPass.length < 6) return toast("Mínimo 6 caracteres", "danger");
+            if (newPass !== confirmPass) return toast("No coinciden", "danger");
+            bookingData.auth.passwordHash = await hashPassword(newPass);
+            saveData();
+            document.getElementById('newPasswordAdmin').value = '';
+            document.getElementById('confirmPasswordAdmin').value = '';
+            toast("Contraseña actualizada");
+        }
+
+        // --- CORE FUNCTIONS ---
+        function saveData() { localStorage.setItem('reservas_db', JSON.stringify(bookingData)); }
+        function loadData() {
+            const d = localStorage.getItem('reservas_db');
+            if(d) {
+                const parsed = JSON.parse(d);
+                bookingData = { ...bookingData, ...parsed, auth: parsed.auth || { passwordHash: null, isAuthenticated: false } };
+            }
+        }
+
+        function toast(msg, type = "success") {
+            const t = document.createElement('div');
+            t.className = 'toast';
+            t.innerHTML = `<i data-lucide="${type === 'success' ? 'check-circle' : 'alert-circle'}"></i> <span>${msg}</span>`;
+            document.body.appendChild(t);
+            lucide.createIcons();
+            setTimeout(() => t.remove(), 3000);
+        }
+
+        window.onload = () => {
+            loadData();
+            lucide.createIcons();
+            applyTheme();
+            updateStats();
+            renderScheduleAdmin();
+            displayServicesAdmin();
+            displayReservationsAdmin();
+            displayServicesCustomer();
+            const params = new URLSearchParams(window.location.search);
+            if(params.get('mode') === 'customer') {
+                document.getElementById('adminToggle').classList.add('hidden');
+            } else {
+                checkAdminAccess();
+            }
+        };
+
+        function applyTheme() {
+            document.documentElement.style.setProperty('--primary', bookingData.config.color);
+            document.getElementById('businessName').innerText = bookingData.config.businessName;
+            document.getElementById('businessLogo').innerText = bookingData.config.emoji;
+            document.getElementById('configBusinessName').value = bookingData.config.businessName;
+            document.getElementById('configWhatsapp').value = bookingData.config.whatsapp;
+            document.getElementById('configEmoji').value = bookingData.config.emoji;
+            document.getElementById('configColor').value = bookingData.config.color;
+            document.getElementById('configDescription').value = bookingData.config.description;
+            document.getElementById('configBuffer').value = bookingData.config.buffer;
+        }
+
+        function switchTab(id) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            document.getElementById(id).classList.add('active');
+        }
+
+        function saveConfig() {
+            bookingData.config.businessName = document.getElementById('configBusinessName').value;
+            bookingData.config.whatsapp = document.getElementById('configWhatsapp').value;
+            bookingData.config.emoji = document.getElementById('configEmoji').value;
+            bookingData.config.color = document.getElementById('configColor').value;
+            bookingData.config.description = document.getElementById('configDescription').value;
+            bookingData.config.buffer = parseInt(document.getElementById('configBuffer').value) || 0;
+            saveData();
+            applyTheme();
+            toast("Configuración guardada");
+        }
+
+        // --- SERVICES ADMIN ---
+        function addService() {
+            const name = document.getElementById('serviceName').value;
+            const price = parseFloat(document.getElementById('servicePrice').value);
+            const duration = parseInt(document.getElementById('serviceDuration').value);
+            const editId = document.getElementById('editingServiceId').value;
+            if(!name || isNaN(price)) return toast("Completa los datos", "danger");
+            if(editId) {
+                const idx = bookingData.services.findIndex(s => s.id == editId);
+                bookingData.services[idx] = { ...bookingData.services[idx], name, price, duration };
+                toast("Actualizado");
+            } else {
+                bookingData.services.push({ id: Date.now(), name, price, duration });
+                toast("Añadido");
+            }
+            resetServiceForm();
+            saveData();
+            displayServicesAdmin();
+            displayServicesCustomer();
+        }
+
+        function resetServiceForm() {
+            document.getElementById('serviceName').value = '';
+            document.getElementById('servicePrice').value = '';
+            document.getElementById('serviceDuration').value = '';
+            document.getElementById('editingServiceId').value = '';
+            document.getElementById('addServiceBtn').innerText = 'Guardar Servicio';
+            document.getElementById('cancelEditBtn').classList.add('hidden');
+        }
+
+        function editService(id) {
+            const s = bookingData.services.find(s => s.id == id);
+            document.getElementById('serviceName').value = s.name;
+            document.getElementById('servicePrice').value = s.price;
+            document.getElementById('serviceDuration').value = s.duration;
+            document.getElementById('editingServiceId').value = s.id;
+            document.getElementById('addServiceBtn').innerText = 'Actualizar Servicio';
+            document.getElementById('cancelEditBtn').classList.remove('hidden');
+        }
+
+        function deleteService(id) {
+            if(!confirm("¿Borrar?")) return;
+            bookingData.services = bookingData.services.filter(s => s.id != id);
+            saveData();
+            displayServicesAdmin();
+            displayServicesCustomer();
+        }
+
+        function displayServicesAdmin() {
+            const container = document.getElementById('servicesList');
+            container.innerHTML = bookingData.services.map(s => `
+                <div class="service-item">
+                    <div style="display:flex; justify-content:space-between; align-items:start;">
+                        <div>
+                            <h4 style="font-weight:700;">${s.name}</h4>
+                            <p style="font-size:0.8rem; color:var(--text-muted);">⏱️ ${s.duration} min | €${s.price}</p>
+                        </div>
+                        <div style="display:flex; gap:4px;">
+                            <button class="btn btn-ghost btn-sm" onclick="editService(${s.id})"><i data-lucide="edit-2" style="width:16px;"></i></button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteService(${s.id})"><i data-lucide="trash-2" style="width:16px;"></i></button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        // --- SCHEDULE ADMIN ---
+        function renderScheduleAdmin() {
+            const container = document.getElementById('scheduleList');
+            const days = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'];
+            container.innerHTML = days.map(d => {
+                const s = bookingData.schedule[d];
+                return `
+                    <div style="display:grid; grid-template-columns: 100px 1fr 1fr 1fr; gap:10px; align-items:center; padding: 10px; background:white; border-radius:8px; border:1px solid var(--border);">
+                        <strong style="text-transform:capitalize;">${d}</strong>
+                        <label style="font-size:0.7rem;"><input type="checkbox" ${s.enabled?'checked':''} onchange="toggleDay('${d}')"> Abierto</label>
+                        <input type="time" value="${s.start}" onchange="updateTime('${d}','start',this.value)" ${!s.enabled?'disabled':''}>
+                        <input type="time" value="${s.end}" onchange="updateTime('${d}','end',this.value)" ${!s.enabled?'disabled':''}>
+                    </div>
+                `;
+            }).join('');
+        }
+        function toggleDay(d) { bookingData.schedule[d].enabled = !bookingData.schedule[d].enabled; saveData(); renderScheduleAdmin(); }
+        function updateTime(d, f, v) { bookingData.schedule[d][f] = v; saveData(); }
+
+        // --- RESERVATIONS ADMIN ---
+        function displayReservationsAdmin() {
+            const container = document.getElementById('reservationsList');
+            if(bookingData.reservations.length === 0) {
+                container.innerHTML = `<p style="text-align:center; padding:2rem; color:var(--text-muted);">No hay reservas aún</p>`;
+                return;
+            }
+            const sorted = [...bookingData.reservations].sort((a,b) => new Date(b.date) - new Date(a.date));
+            container.innerHTML = sorted.map(r => `
+                <div class="res-card">
+                    <div class="res-info">
+                        <h4>${r.customerName} <span class="status-pill status-${r.status}">${r.status}</span></h4>
+                        <p><strong>${r.serviceName}</strong> - ${r.date} a las ${r.time}</p>
+                        <p><i data-lucide="phone" style="width:12px"></i> ${r.customerPhone}</p>
+                    </div>
+                    <div style="display:flex; gap:8px;">
+                        <button class="btn btn-secondary btn-sm" onclick="contactWa('${r.customerPhone}', '${r.customerName}', '${r.date}', '${r.time}')">WhatsApp</button>
+                        ${r.status === 'pending' ? `<button class="btn btn-primary btn-sm" onclick="updateResStatus(${r.id}, 'confirmed')">Confirmar</button>` : ''}
+                        <button class="btn btn-danger btn-sm" onclick="updateResStatus(${r.id}, 'cancelled')"><i data-lucide="x"></i></button>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function updateResStatus(id, status) {
+            const r = bookingData.reservations.find(r => r.id == id);
+            r.status = status;
+            saveData();
+            displayReservationsAdmin();
+            updateStats();
+        }
+
+        function updateStats() {
+            const today = new Date().toISOString().split('T')[0];
+            const total = bookingData.reservations.length;
+            const pending = bookingData.reservations.filter(r => r.status === 'pending').length;
+            const todayRes = bookingData.reservations.filter(r => r.date === today && r.status !== 'cancelled').length;
+            const income = bookingData.reservations
+                .filter(r => r.status === 'confirmed')
+                .reduce((acc, r) => acc + (parseFloat(r.price) || 0), 0);
+            document.getElementById('statTotal').innerText = total;
+            document.getElementById('statPending').innerText = pending;
+            document.getElementById('statToday').innerText = todayRes;
+            document.getElementById('statIncome').innerText = '€' + income.toFixed(2);
+        }
+
+        // --- CUSTOMER FLOW ---
+        function displayServicesCustomer() {
+            const container = document.getElementById('bookingServiceSelector');
+            container.innerHTML = bookingData.services.map(s => `
+                <div class="service-item" onclick="selectService(${s.id})">
+                    <h4 style="font-weight:700;">${s.name}</h4>
+                    <p style="color:var(--primary); font-weight:700; font-size:1.1rem;">€${s.price}</p>
+                    <p style="font-size:0.8rem; color:var(--text-muted);">⏱️ ${s.duration} min</p>
+                </div>
+            `).join('');
+        }
+
+        function selectService(id) {
+            bookingSelection.service = bookingData.services.find(s => s.id == id);
+            navigateBooking(1);
+        }
+
+        function navigateBooking(dir) {
+            const oldStep = currentStep;
+            currentStep += dir;
+            if(currentStep < 1) currentStep = 1;
+            if(currentStep > 4) currentStep = 4;
+            document.getElementById(`step${oldStep}`).classList.add('hidden');
+            document.getElementById(`step${currentStep}`).classList.remove('hidden');
+            const titles = ["Selecciona el Servicio", "Elige Fecha y Hora", "Tus Datos", "Confirma tu Reserva"];
+            document.getElementById('bookingStepTitle').innerText = titles[currentStep-1];
+            document.getElementById('stepIndicator').innerText = `Paso ${currentStep} de 4`;
+            document.getElementById('prevBtn').classList.toggle('hidden', currentStep === 1);
+            if(currentStep === 2) renderCalendar();
+        }
+
+        function changeMonth(dir) { calDate.setMonth(calDate.getMonth() + dir); renderCalendar(); }
+
+        function renderCalendar() {
+            const container = document.getElementById('calendarGrid');
+            const monthLabel = document.getElementById('calMonthLabel');
+            monthLabel.innerText = calDate.toLocaleString('es', { month: 'long', year: 'numeric' });
+            const firstDay = new Date(calDate.getFullYear(), calDate.getMonth(), 1);
+            const lastDay = new Date(calDate.getFullYear(), calDate.getMonth() + 1, 0);
+            let startOffset = firstDay.getDay() - 1; if(startOffset === -1) startOffset = 6;
+            container.innerHTML = ['Lu','Ma','Mi','Ju','Vi','Sa','Do'].map(d => `<div class="cal-day-header">${d}</div>`).join('');
+            for(let i=0; i<startOffset; i++) container.innerHTML += `<div class="cal-day empty"></div>`;
+            const today = new Date(); today.setHours(0,0,0,0);
+            for(let d=1; d<=lastDay.getDate(); d++) {
+                const date = new Date(calDate.getFullYear(), calDate.getMonth(), d);
+                const dateStr = date.toISOString().split('T')[0];
+                const dayName = ['domingo','lunes','martes','miercoles','jueves','viernes','sabado'][date.getDay()];
+                const isEnabled = bookingData.schedule[dayName].enabled;
+                const isPast = date < today;
+                let classes = 'cal-day';
+                if(!isEnabled || isPast) classes += ' disabled';
+                if(date.getTime() === today.getTime()) classes += ' today';
+                if(bookingSelection.date === dateStr) classes += ' selected';
+                container.innerHTML += `<div class="${classes}" onclick="selectDate('${dateStr}', ${!isEnabled || isPast})">${d}</div>`;
+            }
+        }
+
+        function selectDate(dateStr, isDisabled) {
+            if(isDisabled) return;
+            bookingSelection.date = dateStr;
+            renderCalendar();
+            renderTimeSlots(dateStr);
+            document.getElementById('slotsContainer').classList.remove('hidden');
+        }
+
+        function renderTimeSlots(dateStr) {
+            const container = document.getElementById('timeSlots');
+            const dayName = ['domingo','lunes','martes','miercoles','jueves','viernes','sabado'][new Date(dateStr).getDay()];
+            const sched = bookingData.schedule[dayName];
+            const [hS, mS] = sched.start.split(':').map(Number);
+            const [hE, mE] = sched.end.split(':').map(Number);
+            let current = hS * 60 + mS;
+            const end = hE * 60 + mE;
+            const dur = bookingSelection.service.duration + bookingData.config.buffer;
+            let html = '';
+            while(current + bookingSelection.service.duration <= end) {
+                const hh = Math.floor(current/60).toString().padStart(2,'0');
+                const mm = (current%60).toString().padStart(2,'0');
+                const time = `${hh}:${mm}`;
+                const isBooked = bookingData.reservations.some(r => r.date === dateStr && r.time === time && r.status !== 'cancelled');
+                html += `<div class="slot-pill ${isBooked?'booked':''} ${bookingSelection.time===time?'selected':''}" 
+                          onclick="${isBooked?'':'selectTime(\''+time+'\')'}">${time}</div>`;
+                current += dur;
+            }
+            container.innerHTML = html || '<p style="font-size:0.8rem; color:var(--danger)">No disponible</p>';
+        }
+
+        function selectTime(t) {
+            bookingSelection.time = t;
+            renderTimeSlots(bookingSelection.date);
+            setTimeout(() => navigateBooking(1), 300);
+        }
+
+        function goToSummary() {
+            const name = document.getElementById('custName').value;
+            const phone = document.getElementById('custPhone').value;
+            if(!name || !phone) return toast("Completa tus datos", "danger");
+            const text = `<strong>Servicio:</strong> ${bookingSelection.service.name}<br><strong>Fecha:</strong> ${bookingSelection.date}<br><strong>Hora:</strong> ${bookingSelection.time}<br><strong>Cliente:</strong> ${name}`;
+            document.getElementById('summaryText').innerHTML = text;
+            navigateBooking(1);
+        }
+
+        function confirmBooking() {
+            const res = {
+                id: Date.now(),
+                serviceId: bookingSelection.service.id,
+                serviceName: bookingSelection.service.name,
+                price: bookingSelection.service.price,
+                date: bookingSelection.date,
+                time: bookingSelection.time,
+                customerName: document.getElementById('custName').value,
+                customerPhone: document.getElementById('custPhone').value,
+                customerNotes: document.getElementById('custNotes').value,
+                status: 'pending'
+            };
+            bookingData.reservations.push(res);
+            saveData();
+            updateStats();
+            displayReservationsAdmin();
+            if(bookingData.config.whatsapp) {
+                const msg = `Reserva en ${bookingData.config.businessName}:\n${res.serviceName}\n${res.date} ${res.time}`;
+                window.open(`https://wa.me/${bookingData.config.whatsapp.replace(/\D/g,'')}?text=${encodeURIComponent(msg)}`, '_blank');
+            }
+            toast("Reserva enviada");
+            resetBookingFlow();
+        }
+
+        function resetBookingFlow() {
+            currentStep = 1;
+            bookingSelection = { service: null, date: null, time: null };
+            document.querySelectorAll('[id^="step"]').forEach(s => s.classList.add('hidden'));
+            document.getElementById('step1').classList.remove('hidden');
+            document.getElementById('prevBtn').classList.add('hidden');
+            document.getElementById('slotsContainer').classList.add('hidden');
+            document.getElementById('custName').value = '';
+            document.getElementById('custPhone').value = '';
+            document.getElementById('bookingStepTitle').innerText = "Selecciona el Servicio";
+        }
+
+        // --- SHARING & DATA ---
+        function generateShareLink() {
+            const url = window.location.origin + window.location.pathname + "?mode=customer";
+            document.getElementById('shareLink').value = url;
+            
+            const qrElem = document.getElementById('qrcode');
+            qrElem.innerHTML = "";
+            qrElem.classList.remove('hidden');
+            
+            new QRCode(qrElem, { text: url, width: 160, height: 160, colorDark: bookingData.config.color });
+            toast("Enlace y QR generados");
+        }
+
+        function copyLink() {
+            const el = document.getElementById('shareLink');
+            if(!el.value) return toast("Genera el enlace primero", "danger");
+            el.select();
+            document.execCommand('copy');
+            toast("Copiado");
+        }
+
+        function exportData() {
+            const dataStr = JSON.stringify(bookingData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `backup-reservas.json`;
+            link.click();
+        }
+
+        function importData() {
+            const file = document.getElementById('importFile').files[0];
+            if (!file) return toast("Selecciona un archivo", "danger");
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    bookingData = JSON.parse(e.target.result);
+                    saveData();
+                    location.reload();
+                } catch (error) { toast("Archivo inválido", "danger"); }
+            };
+            reader.readAsText(file);
+        }
+
+        function resetData() {
+            if(confirm("¿Seguro? Se borrará TODO.") && confirm("ÚLTIMO AVISO")) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+
+        function contactWa(p, n, d, t) {
+            window.open(`https://wa.me/${p.replace(/\D/g,'')}?text=${encodeURIComponent("Hola "+n+", confirmo tu cita para el "+d+" a las "+t)}`, '_blank');
+        }
+
+        document.getElementById('adminToggle').onclick = () => {
+            if(!sessionStorage.getItem('adminAuthenticated')) return checkAdminAccess();
+            document.getElementById('adminPanel').classList.toggle('hidden');
+        };
+
+        document.getElementById('newBookingBtn').onclick = () => {
+            document.getElementById('adminPanel').classList.add('hidden');
+            document.getElementById('bookingSection').scrollIntoView({ behavior: 'smooth' });
+        };
+    </script>
+</body>
+</html>
