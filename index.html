@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Reservas Pro</title>
-    <!-- Fonts -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap">
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
@@ -225,12 +223,21 @@
             padding: 1.25rem;
             background: var(--white);
             transition: transform 0.2s, box-shadow 0.2s;
-            cursor: pointer;
         }
 
-        .service-item:hover {
-            border-color: var(--primary);
-            box-shadow: var(--shadow);
+        .service-img-preview {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+            overflow-x: auto;
+        }
+
+        .service-img-preview img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid var(--border);
         }
 
         /* Calendar */
@@ -390,7 +397,6 @@
 </head>
 <body>
 
-    <!-- Header -->
     <header class="header">
         <div class="header-content">
             <div class="logo-section">
@@ -410,7 +416,6 @@
 
     <div class="container">
         
-        <!-- Admin Dashboard -->
         <div id="adminPanel" class="hidden">
             <div class="stats-grid">
                 <div class="stat-box">
@@ -441,7 +446,6 @@
                     <button class="tab" onclick="switchTab('data')"><i data-lucide="database"></i> Datos</button>
                 </div>
 
-                <!-- Config Tab -->
                 <div class="tab-content active" id="config">
                     <div class="form-grid">
                         <div class="field">
@@ -463,20 +467,21 @@
                             <input type="color" id="configColor">
                         </div>
                     </div>
-                    <div class="field">
-                        <label>Descripción</label>
-                        <textarea id="configDescription" rows="2"></textarea>
-                    </div>
                     <div class="form-grid">
+                        <div class="field">
+                            <label>Moneda del Sistema</label>
+                            <select id="configCurrency"></select>
+                        </div>
                         <div class="field">
                             <label>Descanso entre citas (min)</label>
                             <input type="number" id="configBuffer" value="15" min="0">
                         </div>
-                        <div class="field">
-                            <label>Acción</label>
-                            <button class="btn btn-primary" onclick="saveConfig()" style="width:100%">Actualizar Configuración</button>
-                        </div>
                     </div>
+                    <div class="field">
+                        <label>Descripción</label>
+                        <textarea id="configDescription" rows="2"></textarea>
+                    </div>
+                    <button class="btn btn-primary" onclick="saveConfig()" style="width:100%">Actualizar Configuración</button>
 
                     <hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--border);">
                     <h3>Seguridad</h3>
@@ -493,14 +498,18 @@
                     <button class="btn btn-secondary" onclick="changePassword()">Actualizar Clave</button>
                 </div>
 
-                <!-- Services Tab -->
                 <div class="tab-content" id="services">
                     <div style="padding: 1.5rem; background: #f8fafc; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 1.5rem;">
                         <input type="hidden" id="editingServiceId">
                         <div class="form-grid">
                             <div class="field"><label>Nombre</label><input type="text" id="serviceName"></div>
-                            <div class="field"><label>Precio (€)</label><input type="number" id="servicePrice"></div>
+                            <div class="field"><label>Precio</label><input type="number" id="servicePrice"></div>
                             <div class="field"><label>Duración (min)</label><input type="number" id="serviceDuration"></div>
+                        </div>
+                        <div class="field">
+                            <label>Fotos del Servicio (Máx. 5)</label>
+                            <input type="file" id="servicePhotos" multiple accept="image/*">
+                            <div id="servicePhotosPreview" class="service-img-preview"></div>
                         </div>
                         <div style="display: flex; gap: 10px;">
                             <button class="btn btn-primary" id="addServiceBtn" onclick="addService()">Guardar Servicio</button>
@@ -510,17 +519,14 @@
                     <div class="services-grid" id="servicesList"></div>
                 </div>
 
-                <!-- Schedule Tab -->
                 <div class="tab-content" id="schedule">
                     <div id="scheduleList" style="display: flex; flex-direction: column; gap: 0.5rem;"></div>
                 </div>
 
-                <!-- Reservations Tab -->
                 <div class="tab-content" id="reservations">
                     <div class="res-list" id="reservationsList"></div>
                 </div>
 
-                <!-- Share Tab -->
                 <div class="tab-content" id="share">
                     <div style="text-align: center; max-width: 400px; margin: 0 auto;">
                         <h3 style="margin-bottom: 1rem;">Compartir con Clientes</h3>
@@ -539,7 +545,6 @@
                     </div>
                 </div>
 
-                <!-- Data Tab -->
                 <div class="tab-content" id="data">
                     <div class="form-grid">
                         <div class="field">
@@ -558,7 +563,6 @@
             </div>
         </div>
 
-        <!-- Booking Flow (Customer View) -->
         <div id="bookingSection" class="card" style="max-width: 800px; margin-left: auto; margin-right: auto;">
             <div class="card-header">
                 <h2 id="bookingStepTitle">Selecciona el Servicio</h2>
@@ -604,7 +608,6 @@
         </div>
     </div>
 
-    <!-- Login Modal -->
     <div id="loginModal" class="modal-overlay hidden">
         <div class="modal-card">
             <h2 style="text-align: center; margin-bottom: 1.5rem;"><i data-lucide="lock" style="vertical-align: middle;"></i> Acceso Admin</h2>
@@ -630,9 +633,26 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
+        const ALL_CURRENCIES = [
+            {code: 'EUR', symbol: '€', name: 'Euro'}, {code: 'USD', symbol: '$', name: 'Dólar Estadounidense'},
+            {code: 'GBP', symbol: '£', name: 'Libra Esterlina'}, {code: 'JPY', symbol: '¥', name: 'Yen Japonés'},
+            {code: 'MXN', symbol: '$', name: 'Peso Mexicano'}, {code: 'ARS', symbol: '$', name: 'Peso Argentino'},
+            {code: 'CLP', symbol: '$', name: 'Peso Chileno'}, {code: 'COP', symbol: '$', name: 'Peso Colombiano'},
+            {code: 'PEN', symbol: 'S/', name: 'Sol Peruano'}, {code: 'UYU', symbol: '$U', name: 'Peso Uruguayo'},
+            {code: 'BRL', symbol: 'R$', name: 'Real Brasileño'}, {code: 'CHF', symbol: 'CHF', name: 'Franco Suizo'},
+            {code: 'CAD', symbol: '$', name: 'Dólar Canadiense'}, {code: 'AUD', symbol: '$', name: 'Dólar Australiano'},
+            {code: 'CNY', symbol: '¥', name: 'Yuan Chino'}, {code: 'INR', symbol: '₹', name: 'Rupia India'},
+            {code: 'RUB', symbol: '₽', name: 'Rublo Ruso'}, {code: 'KRW', symbol: '₩', name: 'Won Surcoreano'},
+            {code: 'TRY', symbol: '₺', name: 'Lira Turca'}, {code: 'ZAR', symbol: 'R', name: 'Rand Sudafricano'},
+            {code: 'CRC', symbol: '₡', name: 'Colón Costarricense'}, {code: 'DOP', symbol: 'RD$', name: 'Peso Dominicano'},
+            {code: 'GTQ', symbol: 'Q', name: 'Quetzal Guatemalteco'}, {code: 'HNL', symbol: 'L', name: 'Lempira Hondureño'},
+            {code: 'NIO', symbol: 'C$', name: 'Córdoba Nicaragüense'}, {code: 'PAB', symbol: 'B/.', name: 'Balboa Panameño'},
+            {code: 'PYG', symbol: '₲', name: 'Guaraní Paraguayo'}, {code: 'VES', symbol: 'Bs.', name: 'Bolívar Venezolano'}
+        ];
+
         // Data Store
         let bookingData = {
-            config: { businessName: 'Mi Negocio', whatsapp: '', emoji: '📅', color: '#2D5A4A', description: '', buffer: 15 },
+            config: { businessName: 'Mi Negocio', whatsapp: '', emoji: '📅', color: '#2D5A4A', description: '', buffer: 15, currency: 'EUR' },
             auth: { passwordHash: null, isAuthenticated: false },
             services: [],
             schedule: {
@@ -651,7 +671,7 @@
         let bookingSelection = { service: null, date: null, time: null };
         let calDate = new Date();
 
-        // --- SISTEMA DE SEGURIDAD (MANTENIDO) ---
+        // --- SISTEMA DE SEGURIDAD ---
         function checkAdminAccess() {
             if (!bookingData.auth) { bookingData.auth = { passwordHash: null, isAuthenticated: false }; }
             if (!bookingData.auth.passwordHash) { showLoginModal(true); return; }
@@ -733,6 +753,17 @@
                 const parsed = JSON.parse(d);
                 bookingData = { ...bookingData, ...parsed, auth: parsed.auth || { passwordHash: null, isAuthenticated: false } };
             }
+            populateCurrencySelect();
+        }
+
+        function populateCurrencySelect() {
+            const select = document.getElementById('configCurrency');
+            select.innerHTML = ALL_CURRENCIES.map(c => `<option value="${c.code}">${c.code} (${c.symbol}) - ${c.name}</option>`).join('');
+        }
+
+        function getCurrencySymbol() {
+            const conf = ALL_CURRENCIES.find(c => c.code === bookingData.config.currency);
+            return conf ? conf.symbol : '€';
         }
 
         function toast(msg, type = "success") {
@@ -771,6 +802,7 @@
             document.getElementById('configColor').value = bookingData.config.color;
             document.getElementById('configDescription').value = bookingData.config.description;
             document.getElementById('configBuffer').value = bookingData.config.buffer;
+            document.getElementById('configCurrency').value = bookingData.config.currency || 'EUR';
         }
 
         function switchTab(id) {
@@ -787,24 +819,46 @@
             bookingData.config.color = document.getElementById('configColor').value;
             bookingData.config.description = document.getElementById('configDescription').value;
             bookingData.config.buffer = parseInt(document.getElementById('configBuffer').value) || 0;
+            bookingData.config.currency = document.getElementById('configCurrency').value;
             saveData();
             applyTheme();
+            updateStats();
+            displayServicesAdmin();
+            displayServicesCustomer();
             toast("Configuración guardada");
         }
 
         // --- SERVICES ADMIN ---
-        function addService() {
+        async function addService() {
             const name = document.getElementById('serviceName').value;
             const price = parseFloat(document.getElementById('servicePrice').value);
             const duration = parseInt(document.getElementById('serviceDuration').value);
             const editId = document.getElementById('editingServiceId').value;
+            const photoInput = document.getElementById('servicePhotos');
+            
             if(!name || isNaN(price)) return toast("Completa los datos", "danger");
+
+            const photos = [];
+            if(photoInput.files.length > 0) {
+                for(let file of photoInput.files) {
+                    const base64 = await toBase64(file);
+                    photos.push(base64);
+                }
+            }
+
             if(editId) {
                 const idx = bookingData.services.findIndex(s => s.id == editId);
-                bookingData.services[idx] = { ...bookingData.services[idx], name, price, duration };
+                const oldPhotos = bookingData.services[idx].photos || [];
+                bookingData.services[idx] = { 
+                    ...bookingData.services[idx], 
+                    name, 
+                    price, 
+                    duration, 
+                    photos: photos.length > 0 ? photos : oldPhotos 
+                };
                 toast("Actualizado");
             } else {
-                bookingData.services.push({ id: Date.now(), name, price, duration });
+                bookingData.services.push({ id: Date.now(), name, price, duration, photos });
                 toast("Añadido");
             }
             resetServiceForm();
@@ -813,11 +867,20 @@
             displayServicesCustomer();
         }
 
+        const toBase64 = file => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+
         function resetServiceForm() {
             document.getElementById('serviceName').value = '';
             document.getElementById('servicePrice').value = '';
             document.getElementById('serviceDuration').value = '';
             document.getElementById('editingServiceId').value = '';
+            document.getElementById('servicePhotos').value = '';
+            document.getElementById('servicePhotosPreview').innerHTML = '';
             document.getElementById('addServiceBtn').innerText = 'Guardar Servicio';
             document.getElementById('cancelEditBtn').classList.add('hidden');
         }
@@ -830,6 +893,9 @@
             document.getElementById('editingServiceId').value = s.id;
             document.getElementById('addServiceBtn').innerText = 'Actualizar Servicio';
             document.getElementById('cancelEditBtn').classList.remove('hidden');
+            
+            const preview = document.getElementById('servicePhotosPreview');
+            preview.innerHTML = (s.photos || []).map(p => `<img src="${p}">`).join('');
         }
 
         function deleteService(id) {
@@ -842,12 +908,16 @@
 
         function displayServicesAdmin() {
             const container = document.getElementById('servicesList');
+            const sym = getCurrencySymbol();
             container.innerHTML = bookingData.services.map(s => `
                 <div class="service-item">
                     <div style="display:flex; justify-content:space-between; align-items:start;">
                         <div>
                             <h4 style="font-weight:700;">${s.name}</h4>
-                            <p style="font-size:0.8rem; color:var(--text-muted);">⏱️ ${s.duration} min | €${s.price}</p>
+                            <p style="font-size:0.8rem; color:var(--text-muted);">⏱️ ${s.duration} min | ${sym}${s.price}</p>
+                            <div class="service-img-preview">
+                                ${(s.photos || []).map(p => `<img src="${p}">`).join('')}
+                            </div>
                         </div>
                         <div style="display:flex; gap:4px;">
                             <button class="btn btn-ghost btn-sm" onclick="editService(${s.id})"><i data-lucide="edit-2" style="width:16px;"></i></button>
@@ -896,10 +966,7 @@
                     <div style="display:flex; gap:8px;">
                         <button class="btn btn-secondary btn-sm" onclick="contactWa('${r.customerPhone}', '${r.customerName}', '${r.date}', '${r.time}')">WhatsApp</button>
                         ${r.status === 'pending' ? `<button class="btn btn-primary btn-sm" onclick="updateResStatus(${r.id}, 'confirmed')">Confirmar</button>` : ''}
-                        ${r.status === 'cancelled' ? 
-                            `<button class="btn btn-danger btn-sm" onclick="deleteReservation(${r.id})"><i data-lucide="trash-2"></i></button>` : 
-                            `<button class="btn btn-danger btn-sm" onclick="updateResStatus(${r.id}, 'cancelled')"><i data-lucide="x"></i></button>`
-                        }
+                        <button class="btn btn-danger btn-sm" onclick="updateResStatus(${r.id}, 'cancelled')"><i data-lucide="x"></i></button>
                     </div>
                 </div>
             `).join('');
@@ -914,15 +981,6 @@
             updateStats();
         }
 
-        function deleteReservation(id) {
-            if(!confirm("¿Borrar definitivamente?")) return;
-            bookingData.reservations = bookingData.reservations.filter(r => r.id != id);
-            saveData();
-            displayReservationsAdmin();
-            updateStats();
-            toast("Eliminada");
-        }
-
         function updateStats() {
             const today = new Date().toISOString().split('T')[0];
             const total = bookingData.reservations.length;
@@ -931,19 +989,22 @@
             const income = bookingData.reservations
                 .filter(r => r.status === 'confirmed')
                 .reduce((acc, r) => acc + (parseFloat(r.price) || 0), 0);
+            const sym = getCurrencySymbol();
             document.getElementById('statTotal').innerText = total;
             document.getElementById('statPending').innerText = pending;
             document.getElementById('statToday').innerText = todayRes;
-            document.getElementById('statIncome').innerText = '€' + income.toFixed(2);
+            document.getElementById('statIncome').innerText = sym + income.toFixed(2);
         }
 
         // --- CUSTOMER FLOW ---
         function displayServicesCustomer() {
             const container = document.getElementById('bookingServiceSelector');
+            const sym = getCurrencySymbol();
             container.innerHTML = bookingData.services.map(s => `
                 <div class="service-item" onclick="selectService(${s.id})">
+                    ${(s.photos && s.photos.length > 0) ? `<img src="${s.photos[0]}" style="width:100%; height:120px; object-fit:cover; border-radius:8px; margin-bottom:10px;">` : ''}
                     <h4 style="font-weight:700;">${s.name}</h4>
-                    <p style="color:var(--primary); font-weight:700; font-size:1.1rem;">€${s.price}</p>
+                    <p style="color:var(--primary); font-weight:700; font-size:1.1rem;">${sym}${s.price}</p>
                     <p style="font-size:0.8rem; color:var(--text-muted);">⏱️ ${s.duration} min</p>
                 </div>
             `).join('');
@@ -1065,40 +1126,33 @@
         }
 
         function resetBookingFlow() {
-            // Volver al paso 1
-            document.querySelectorAll('[id^="step"]').forEach(s => s.classList.add('hidden'));
-            document.getElementById('step1').classList.remove('hidden');
-            
-            // Limpiar selección interna
             currentStep = 1;
             bookingSelection = { service: null, date: null, time: null };
-            
-            // Limpiar inputs
-            document.getElementById('custName').value = '';
-            document.getElementById('custPhone').value = '';
-            document.getElementById('custNotes').value = '';
-            
-            // Resetear UI
+            document.querySelectorAll('[id^="step"]').forEach(s => s.classList.add('hidden'));
+            document.getElementById('step1').classList.remove('hidden');
             document.getElementById('prevBtn').classList.add('hidden');
             document.getElementById('slotsContainer').classList.add('hidden');
+            document.getElementById('custName').value = '';
+            document.getElementById('custPhone').value = '';
             document.getElementById('bookingStepTitle').innerText = "Selecciona el Servicio";
-            document.getElementById('stepIndicator').innerText = "Paso 1 de 4";
         }
 
         // --- SHARING & DATA ---
         function generateShareLink() {
             const url = window.location.origin + window.location.pathname + "?mode=customer";
             document.getElementById('shareLink').value = url;
+            
             const qrElem = document.getElementById('qrcode');
             qrElem.innerHTML = "";
             qrElem.classList.remove('hidden');
+            
             new QRCode(qrElem, { text: url, width: 160, height: 160, colorDark: bookingData.config.color });
-            toast("Generado");
+            toast("Enlace y QR generados");
         }
 
         function copyLink() {
             const el = document.getElementById('shareLink');
-            if(!el.value) return;
+            if(!el.value) return toast("Genera el enlace primero", "danger");
             el.select();
             document.execCommand('copy');
             toast("Copiado");
@@ -1116,20 +1170,20 @@
 
         function importData() {
             const file = document.getElementById('importFile').files[0];
-            if (!file) return;
+            if (!file) return toast("Selecciona un archivo", "danger");
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
                     bookingData = JSON.parse(e.target.result);
                     saveData();
                     location.reload();
-                } catch (error) { toast("Error", "danger"); }
+                } catch (error) { toast("Archivo inválido", "danger"); }
             };
             reader.readAsText(file);
         }
 
         function resetData() {
-            if(confirm("¿Borrar TODO?") && confirm("AVISO FINAL")) {
+            if(confirm("¿Seguro? Se borrará TODO.") && confirm("ÚLTIMO AVISO")) {
                 localStorage.clear();
                 location.reload();
             }
@@ -1139,21 +1193,14 @@
             window.open(`https://wa.me/${p.replace(/\D/g,'')}?text=${encodeURIComponent("Hola "+n+", confirmo tu cita para el "+d+" a las "+t)}`, '_blank');
         }
 
-        // --- EVENT LISTENERS ---
         document.getElementById('adminToggle').onclick = () => {
             if(!sessionStorage.getItem('adminAuthenticated')) return checkAdminAccess();
             document.getElementById('adminPanel').classList.toggle('hidden');
         };
 
-        // CORRECCIÓN: Ahora el botón realmente reinicia el flujo
         document.getElementById('newBookingBtn').onclick = () => {
-            // Ocultar panel admin si está abierto
             document.getElementById('adminPanel').classList.add('hidden');
-            // Reiniciar el formulario de reserva
-            resetBookingFlow();
-            // Desplazar a la sección de reserva
             document.getElementById('bookingSection').scrollIntoView({ behavior: 'smooth' });
-            toast("Iniciando nueva reserva");
         };
     </script>
 </body>
