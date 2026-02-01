@@ -225,6 +225,12 @@
             padding: 1.25rem;
             background: var(--white);
             transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+
+        .service-item:hover {
+            border-color: var(--primary);
+            box-shadow: var(--shadow);
         }
 
         /* Calendar */
@@ -598,7 +604,7 @@
         </div>
     </div>
 
-    <!-- Login Modal (SEGURIDAD ORIGINAL) -->
+    <!-- Login Modal -->
     <div id="loginModal" class="modal-overlay hidden">
         <div class="modal-card">
             <h2 style="text-align: center; margin-bottom: 1.5rem;"><i data-lucide="lock" style="vertical-align: middle;"></i> Acceso Admin</h2>
@@ -890,7 +896,10 @@
                     <div style="display:flex; gap:8px;">
                         <button class="btn btn-secondary btn-sm" onclick="contactWa('${r.customerPhone}', '${r.customerName}', '${r.date}', '${r.time}')">WhatsApp</button>
                         ${r.status === 'pending' ? `<button class="btn btn-primary btn-sm" onclick="updateResStatus(${r.id}, 'confirmed')">Confirmar</button>` : ''}
-                        <button class="btn btn-danger btn-sm" onclick="updateResStatus(${r.id}, 'cancelled')"><i data-lucide="x"></i></button>
+                        ${r.status === 'cancelled' ? 
+                            `<button class="btn btn-danger btn-sm" onclick="deleteReservation(${r.id})"><i data-lucide="trash-2"></i></button>` : 
+                            `<button class="btn btn-danger btn-sm" onclick="updateResStatus(${r.id}, 'cancelled')"><i data-lucide="x"></i></button>`
+                        }
                     </div>
                 </div>
             `).join('');
@@ -903,6 +912,15 @@
             saveData();
             displayReservationsAdmin();
             updateStats();
+        }
+
+        function deleteReservation(id) {
+            if(!confirm("¿Borrar definitivamente?")) return;
+            bookingData.reservations = bookingData.reservations.filter(r => r.id != id);
+            saveData();
+            displayReservationsAdmin();
+            updateStats();
+            toast("Eliminada");
         }
 
         function updateStats() {
@@ -1047,33 +1065,40 @@
         }
 
         function resetBookingFlow() {
-            currentStep = 1;
-            bookingSelection = { service: null, date: null, time: null };
+            // Volver al paso 1
             document.querySelectorAll('[id^="step"]').forEach(s => s.classList.add('hidden'));
             document.getElementById('step1').classList.remove('hidden');
-            document.getElementById('prevBtn').classList.add('hidden');
-            document.getElementById('slotsContainer').classList.add('hidden');
+            
+            // Limpiar selección interna
+            currentStep = 1;
+            bookingSelection = { service: null, date: null, time: null };
+            
+            // Limpiar inputs
             document.getElementById('custName').value = '';
             document.getElementById('custPhone').value = '';
+            document.getElementById('custNotes').value = '';
+            
+            // Resetear UI
+            document.getElementById('prevBtn').classList.add('hidden');
+            document.getElementById('slotsContainer').classList.add('hidden');
             document.getElementById('bookingStepTitle').innerText = "Selecciona el Servicio";
+            document.getElementById('stepIndicator').innerText = "Paso 1 de 4";
         }
 
         // --- SHARING & DATA ---
         function generateShareLink() {
             const url = window.location.origin + window.location.pathname + "?mode=customer";
             document.getElementById('shareLink').value = url;
-            
             const qrElem = document.getElementById('qrcode');
             qrElem.innerHTML = "";
             qrElem.classList.remove('hidden');
-            
             new QRCode(qrElem, { text: url, width: 160, height: 160, colorDark: bookingData.config.color });
-            toast("Enlace y QR generados");
+            toast("Generado");
         }
 
         function copyLink() {
             const el = document.getElementById('shareLink');
-            if(!el.value) return toast("Genera el enlace primero", "danger");
+            if(!el.value) return;
             el.select();
             document.execCommand('copy');
             toast("Copiado");
@@ -1091,20 +1116,20 @@
 
         function importData() {
             const file = document.getElementById('importFile').files[0];
-            if (!file) return toast("Selecciona un archivo", "danger");
+            if (!file) return;
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
                     bookingData = JSON.parse(e.target.result);
                     saveData();
                     location.reload();
-                } catch (error) { toast("Archivo inválido", "danger"); }
+                } catch (error) { toast("Error", "danger"); }
             };
             reader.readAsText(file);
         }
 
         function resetData() {
-            if(confirm("¿Seguro? Se borrará TODO.") && confirm("ÚLTIMO AVISO")) {
+            if(confirm("¿Borrar TODO?") && confirm("AVISO FINAL")) {
                 localStorage.clear();
                 location.reload();
             }
@@ -1114,14 +1139,21 @@
             window.open(`https://wa.me/${p.replace(/\D/g,'')}?text=${encodeURIComponent("Hola "+n+", confirmo tu cita para el "+d+" a las "+t)}`, '_blank');
         }
 
+        // --- EVENT LISTENERS ---
         document.getElementById('adminToggle').onclick = () => {
             if(!sessionStorage.getItem('adminAuthenticated')) return checkAdminAccess();
             document.getElementById('adminPanel').classList.toggle('hidden');
         };
 
+        // CORRECCIÓN: Ahora el botón realmente reinicia el flujo
         document.getElementById('newBookingBtn').onclick = () => {
+            // Ocultar panel admin si está abierto
             document.getElementById('adminPanel').classList.add('hidden');
+            // Reiniciar el formulario de reserva
+            resetBookingFlow();
+            // Desplazar a la sección de reserva
             document.getElementById('bookingSection').scrollIntoView({ behavior: 'smooth' });
+            toast("Iniciando nueva reserva");
         };
     </script>
 </body>
